@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,10 @@ import {
   Alert,
   SafeAreaView,
   Platform,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import LoadingSpinner from '@/components/Loader/LoadingSpinner';
-import { initAuth, initFirebase } from '@/clients/firebase';
+} from "react-native";
+// import { useNavigation } from '@react-navigation/native';
+import LoadingSpinner from "@/components/Loader/LoadingSpinner";
+import { initAuth, initFirebase } from "@/clients/firebase";
 
 interface FormValues {
   email: string;
@@ -23,11 +23,11 @@ interface ILoginScreen {
 }
 
 export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   const [loading, setLoading] = useState<boolean>(false);
   const [formValues, setFormValues] = useState<FormValues>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const app = initFirebase();
@@ -39,21 +39,27 @@ export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
   };
 
   const handleLogin = async () => {
-    onLoginSuccess(true);
-    // Your login logic here...
+    try {
+      setLoading(true);
+      onLoginSuccess(true);
+    } catch (error: any) {
+      Alert.alert("Login Error", error.message || "Failed to sign in.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLoginByGooglePopUp = async () => {
     try {
       setLoading(true);
-      // Google sign-in code...
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
-      });
+      // Add your Google authentication logic here
+      onLoginSuccess(true);
     } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
-      Alert.alert('Login Error', error.message || 'Failed to sign in with Google.');
+      console.error("Google Sign-In Error:", error);
+      Alert.alert(
+        "Login Error",
+        error.message || "Failed to sign in with Google."
+      );
     } finally {
       setLoading(false);
     }
@@ -81,7 +87,7 @@ export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
             autoCapitalize="none"
             autoComplete="email"
             value={formValues.email}
-            onChangeText={(text) => handleInputChange('email', text)}
+            onChangeText={(text) => handleInputChange("email", text)}
           />
         </View>
 
@@ -95,7 +101,7 @@ export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
             autoCapitalize="none"
             autoComplete="password"
             value={formValues.password}
-            onChangeText={(text) => handleInputChange('password', text)}
+            onChangeText={(text) => handleInputChange("password", text)}
           />
         </View>
 
@@ -105,13 +111,18 @@ export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
           disabled={loading}
         >
           <Text style={styles.signinButtonText}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.forgotButton}
-          onPress={() => navigation.navigate('RequestNewPassword' as never)}
+          onPress={() =>
+            Alert.alert(
+              "Coming Soon",
+              "Password reset functionality will be available soon."
+            )
+          }
         >
           <Text style={styles.forgotButtonText}>Forgot your password?</Text>
         </TouchableOpacity>
@@ -130,19 +141,19 @@ export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E9F5E9', // Light green background for a modern look
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E9F5E9", // Light green background for a modern look
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
   },
   card: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 24,
     borderRadius: 12,
     // iOS shadow
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -151,15 +162,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: '700',
-    color: '#4B8005', // Primary green tone
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#4B8005", // Primary green tone
+    textAlign: "center",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6FB11A', // Secondary green tone
-    textAlign: 'center',
+    color: "#6FB11A", // Secondary green tone
+    textAlign: "center",
     marginBottom: 24,
   },
   inputContainer: {
@@ -167,51 +178,50 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#F7F7F7',
-    borderColor: '#ddd',
+    backgroundColor: "#F7F7F7",
+    borderColor: "#ddd",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 14,
-    paddingVertical: Platform.OS === 'ios' ? 14 : 10,
+    paddingVertical: Platform.OS === "ios" ? 14 : 10,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   signinButton: {
-    backgroundColor: '#4B8005',
+    backgroundColor: "#4B8005",
     paddingVertical: 14,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   signinButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   forgotButton: {
     marginTop: 16,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   forgotButtonText: {
-    color: '#4B8005',
+    color: "#4B8005",
     fontSize: 14,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   googleButton: {
-    backgroundColor: '#DB4437',
+    backgroundColor: "#DB4437",
     paddingVertical: 12,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
   },
   googleButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-
