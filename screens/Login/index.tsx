@@ -1,227 +1,34 @@
-import { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  SafeAreaView,
-  Platform,
-} from "react-native";
-// import { useNavigation } from '@react-navigation/native';
-import LoadingSpinner from "@/components/Loader/LoadingSpinner";
-import { initAuth, initFirebase } from "@/clients/firebase";
+import React, { useState } from 'react';
+import { Alert } from 'react-native';
+import LoginScreen from 'react-native-login-screen';
 
-interface FormValues {
-  email: string;
-  password: string;
-}
+const SignInScreen: React.FC = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-interface ILoginScreen {
-  onLoginSuccess: (value: boolean) => void;
-}
-
-export default function LoginScreen({ onLoginSuccess }: ILoginScreen) {
-  // const navigation = useNavigation();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [formValues, setFormValues] = useState<FormValues>({
-    email: "",
-    password: "",
-  });
-
-  const app = initFirebase();
-  const firebaseAuth = initAuth();
-
-  // Handle input changes
-  const handleInputChange = (key: keyof FormValues, value: string) => {
-    setFormValues((prev) => ({ ...prev, [key]: value }));
+  const handleLogin = () => {
+    // Your login logic goes here (e.g., API calls)
+    Alert.alert('Login Attempt', `Email: ${username}\nPassword: ${password}`);
   };
-
-  const handleLogin = async () => {
-    try {
-      setLoading(true);
-      onLoginSuccess(true);
-    } catch (error: any) {
-      Alert.alert("Login Error", error.message || "Failed to sign in.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoginByGooglePopUp = async () => {
-    try {
-      setLoading(true);
-      // Add your Google authentication logic here
-      onLoginSuccess(true);
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
-      Alert.alert(
-        "Login Error",
-        error.message || "Failed to sign in with Google."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Clear existing authentication data on mount
-  useEffect(() => {
-    firebaseAuth.signOut();
-  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {loading && <LoadingSpinner text="Loading..." />}
-      <View style={styles.card}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="name@company.com"
-            placeholderTextColor="#aaa"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            value={formValues.email}
-            onChangeText={(text) => handleInputChange("email", text)}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor="#aaa"
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password"
-            value={formValues.password}
-            onChangeText={(text) => handleInputChange("password", text)}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.signinButton}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.signinButtonText}>
-            {loading ? "Signing in..." : "Sign In"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.forgotButton}
-          onPress={() =>
-            Alert.alert(
-              "Coming Soon",
-              "Password reset functionality will be available soon."
-            )
-          }
-        >
-          <Text style={styles.forgotButtonText}>Forgot your password?</Text>
-        </TouchableOpacity>
-
-        {/* Optionally include Google Sign-In */}
-        {/* 
-        <TouchableOpacity style={styles.googleButton} onPress={handleLoginByGooglePopUp}>
-          <Text style={styles.googleButtonText}>Sign in with Google</Text>
-        </TouchableOpacity> 
-        */}
-      </View>
-    </SafeAreaView>
+    <LoginScreen
+      logoImageSource={require('../../assets/logo/logo-no-background.png')}
+      onLoginPress={handleLogin}
+      onSignupPress={() => {
+        // Handle sign-up logic here
+      }}
+      onEmailChange={setUsername}
+      onPasswordChange={setPassword}
+      loginButtonText="Sign In"
+      disableSignup
+      // style={{ backgroundColor: '#77B920' }} // Set the background color
+      loginButtonStyle={{ backgroundColor: '#6FB11A' }} // Set the login button color
+      // loginButtonTextStyle={{ color: '#FFFFFF' }} // Set the login button text color
+      textInputContainerStyle={{ backgroundColor: '#FFFFFF' }} // Set the text input background color
+      // loginTextStyle={{ color: '#000000' }} // Set the text input text color
+    />
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E9F5E9", // Light green background for a modern look
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  card: {
-    width: "100%",
-    maxWidth: 400,
-    backgroundColor: "#fff",
-    padding: 24,
-    borderRadius: 12,
-    // iOS shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    // Android shadow
-    elevation: 5,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#4B8005", // Primary green tone
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#6FB11A", // Secondary green tone
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 6,
-  },
-  input: {
-    backgroundColor: "#F7F7F7",
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: Platform.OS === "ios" ? 14 : 10,
-    fontSize: 16,
-    color: "#333",
-  },
-  signinButton: {
-    backgroundColor: "#4B8005",
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  signinButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  forgotButton: {
-    marginTop: 16,
-    alignSelf: "center",
-  },
-  forgotButtonText: {
-    color: "#4B8005",
-    fontSize: 14,
-    textDecorationLine: "underline",
-  },
-  googleButton: {
-    backgroundColor: "#DB4437",
-    paddingVertical: 12,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  googleButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});
+export default SignInScreen;
